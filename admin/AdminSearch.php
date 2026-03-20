@@ -107,6 +107,7 @@ $nav_admin_active = 'search';
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
 
     .profile-result-name {
@@ -215,9 +216,9 @@ $nav_admin_active = 'search';
     }
   </style>
 </head>
-<body class="admin-page">
+<body class="admin-page" style="display:flex;flex-direction:column;min-height:100vh;">
 <?php include __DIR__ . '/nav_admin.php'; ?>
-<main class="admin-main">
+<main class="admin-main" style="flex:1;">
   <span class="section-eyebrow">Administration</span>
   <h2 class="section-title">Search Student</h2>
 
@@ -252,10 +253,14 @@ $nav_admin_active = 'search';
         <div class="profile-result-card">
           <div class="profile-result-top">
             <div class="profile-result-avatar">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
+              <?php if (!empty($search_result['profile_pic']) && file_exists(__DIR__ . '/../' . $search_result['profile_pic'])): ?>
+                <img src="../<?= htmlspecialchars($search_result['profile_pic']) ?>" alt="Profile" style="width:80px;height:80px;object-fit:cover;border-radius:50%;"/>
+              <?php else: ?>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              <?php endif; ?>
             </div>
             <div class="profile-result-name">
               <?= htmlspecialchars($search_result['first_name'].' '.($search_result['middle_name']?$search_result['middle_name'].' ':'').$search_result['last_name']) ?>

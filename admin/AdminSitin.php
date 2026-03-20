@@ -66,77 +66,114 @@ $nav_admin_active = 'sitin';
   <title>UC CCS &mdash; Sit-In</title>
   <link rel="stylesheet" href="../css/Style.css"/>
   <link rel="stylesheet" href="../css/Admin.css"/>
+  <style>
+    body.admin-page a { text-decoration: none !important; }
+
+    .sitin-search-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 16px 20px;
+    }
+
+    .sitin-search-bar input {
+      width: 280px;
+      padding: 9px 14px;
+      border: 1.5px solid #ccdeed;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .sitin-search-bar input:focus { border-color: #1877c9; }
+
+    .sitin-table-wrap { padding: 0 20px 20px; }
+
+    .sitin-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .sitin-table th {
+      padding: 12px 16px;
+      text-align: left;
+      background: rgba(10,77,140,0.06);
+      color: var(--blue-deep);
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid rgba(10,77,140,0.1);
+      white-space: nowrap;
+    }
+
+    .sitin-table td {
+      padding: 14px 16px;
+      color: var(--ink);
+      border-bottom: 1px solid rgba(204,222,237,0.4);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .sitin-table tr:last-child td { border-bottom: none; }
+    .sitin-table tr:hover td { background: rgba(10,77,140,0.02); }
+
+    .inline-search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(204,222,237,0.4);
+    }
+
+    .inline-search-wrap label { font-size: 0.8rem; color: var(--ink-soft); }
+    .inline-search-wrap input {
+      width: 200px;
+      padding: 6px 12px;
+      border: 1.5px solid #ccdeed;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      outline: none;
+    }
+    .inline-search-wrap input:focus { border-color: #1877c9; }
+  </style>
 </head>
-<body class="admin-page">
+<body class="admin-page" style="display:flex;flex-direction:column;min-height:100vh;">
 <?php include __DIR__ . '/nav_admin.php'; ?>
-<main class="admin-main">
+<main class="admin-main" style="flex:1;">
   <span class="section-eyebrow">Administration</span>
   <h2 class="section-title">Sit-In Management</h2>
 
-  <div class="admin-card" style="margin-bottom:22px;">
-    <div class="admin-card-header">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      Search Student for Sit-In
-    </div>
-    <div class="admin-table-wrap">
-      <form method="GET" action="AdminSitin.php" style="display:flex;gap:10px;align-items:center;margin-bottom:16px;">
-        <input type="text" name="q" value="<?= htmlspecialchars($search_query) ?>" placeholder="Enter Student ID or Name..." style="flex:1;padding:10px 14px;border:1.5px solid #ccdeed;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;"/>
-        <button type="submit" class="admin-btn blue">Search</button>
-      </form>
 
-      <?php if ($search_query && !$search_result): ?>
-        <div class="admin-alert error">&#10005; No student found for "<?= htmlspecialchars($search_query) ?>".</div>
-      <?php endif; ?>
 
-      <?php if ($search_result): ?>
-        <?php if ($sitin_success): ?><div class="admin-alert success">&#10003; <?= htmlspecialchars($sitin_success) ?></div><?php endif; ?>
-        <?php if ($sitin_error):   ?><div class="admin-alert error">&#10005; <?= htmlspecialchars($sitin_error) ?></div><?php endif; ?>
-        <button class="admin-btn blue" onclick="document.getElementById('sitinModal').classList.add('open')">+ Sit-In this Student</button>
-
-        <div class="modal-overlay" id="sitinModal">
-          <div class="modal-box">
-            <div class="modal-header">Sit In Form <button class="modal-close" onclick="document.getElementById('sitinModal').classList.remove('open')">&#10005;</button></div>
-            <form method="POST" action="AdminSitin.php?q=<?= urlencode($search_query) ?>">
-              <input type="hidden" name="sitin_student_id" value="<?= $search_result['id'] ?>"/>
-              <div class="modal-body">
-                <div class="modal-row"><span class="modal-row-label">ID Number</span><span class="modal-row-val"><?= htmlspecialchars($search_result['student_id']) ?></span></div>
-                <div class="modal-row"><span class="modal-row-label">Student Name</span><span class="modal-row-val"><?= htmlspecialchars($search_result['first_name'].' '.$search_result['last_name']) ?></span></div>
-                <div class="modal-row">
-                  <span class="modal-row-label">Purpose</span>
-                  <select name="purpose" style="flex:1;padding:6px 10px;border:1.5px solid #ccdeed;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;">
-                    <?php foreach ($purposes as $p): ?><option><?= $p ?></option><?php endforeach; ?>
-                  </select>
-                </div>
-                <div class="modal-row">
-                  <span class="modal-row-label">Lab</span>
-                  <select name="lab_room" style="flex:1;padding:6px 10px;border:1.5px solid #ccdeed;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;">
-                    <?php foreach ($lab_rooms as $r): ?><option><?= $r ?></option><?php endforeach; ?>
-                  </select>
-                </div>
-                <div class="modal-row"><span class="modal-row-label">Remaining Sessions</span><span class="modal-row-val"><?= $search_result['sessions'] - $search_result['used'] ?></span></div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="admin-btn ghost" onclick="document.getElementById('sitinModal').classList.remove('open')">Close</button>
-                <button type="submit" class="admin-btn blue">Sit In</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      <?php endif; ?>
-    </div>
-  </div>
-
+  <!-- Current Sit-ins -->
   <div class="admin-card">
     <div class="admin-card-header">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       Current Sit-In
     </div>
-    <div class="admin-table-wrap">
-      <div class="admin-table-toolbar">
-        <div class="search-box-wrap"><label>Search:</label><input type="text" id="tableSearch" oninput="filterTable()" placeholder="Search..."/></div>
-      </div>
-      <table class="admin-table-box" id="sitinTable">
-        <thead><tr><th>Sit ID</th><th>ID Number</th><th>Name</th><th>Purpose</th><th>Sit Lab</th><th>Session</th><th>Status</th><th>Actions</th></tr></thead>
+    <div class="inline-search-wrap">
+      <label>Search:</label>
+      <input type="text" id="tableSearch" oninput="filterTable()" placeholder="Search..."/>
+    </div>
+    <div class="sitin-table-wrap">
+      <table class="sitin-table" id="sitinTable">
+        <thead>
+          <tr>
+            <th>Sit ID</th>
+            <th>ID Number</th>
+            <th>Name</th>
+            <th>Purpose</th>
+            <th>Sit Lab</th>
+            <th>Sessions Left</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
         <tbody>
           <?php foreach ($current_sitins as $log): ?>
           <tr>
@@ -162,7 +199,9 @@ $nav_admin_active = 'sitin';
 <script>
 function filterTable() {
   const q = document.getElementById('tableSearch').value.toLowerCase();
-  document.querySelectorAll('#sitinTable tbody tr').forEach(r => { r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+  document.querySelectorAll('#sitinTable tbody tr').forEach(r => {
+    r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
 }
 </script>
 </body>

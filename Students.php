@@ -49,20 +49,24 @@ $nav_student_active = 'home';
   <link rel="stylesheet" href="css/Style.css"/>
   <link rel="stylesheet" href="css/Students.css"/>
 </head>
-<body class="student-page">
+<body class="student-page" style="display:flex;flex-direction:column;min-height:100vh;">
 
 <?php include __DIR__ . '/nav_student.php'; ?>
 
-  <main class="student-main">
+  <main class="student-main" style="flex:1;">
 
     <aside class="profile-sidebar">
       <div class="profile-card">
         <div class="profile-avatar-ring">
           <div class="profile-avatar">
+            <?php if (!empty($student['profile_pic']) && file_exists(__DIR__ . '/' . $student['profile_pic'])): ?>
+              <img src="<?= htmlspecialchars($student['profile_pic']) ?>" alt="Profile" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>
+            <?php else: ?>
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
             </svg>
+            <?php endif; ?>
           </div>
         </div>
         <h3 class="profile-name"><?= htmlspecialchars($student['first_name'] . ' ' . $student['last_name']) ?></h3>

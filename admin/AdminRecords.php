@@ -20,23 +20,98 @@ $nav_admin_active = 'records';
   <title>UC CCS &mdash; Sit-In Records</title>
   <link rel="stylesheet" href="../css/Style.css"/>
   <link rel="stylesheet" href="../css/Admin.css"/>
+  <style>
+    body.admin-page a { text-decoration: none !important; }
+
+    .records-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    .records-table th {
+      padding: 13px 18px;
+      text-align: left;
+      background: rgba(10,77,140,0.06);
+      color: var(--blue-deep);
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid rgba(10,77,140,0.1);
+      white-space: nowrap;
+    }
+
+    .records-table td {
+      padding: 14px 18px;
+      color: var(--ink);
+      border-bottom: 1px solid rgba(204,222,237,0.4);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .records-table tr:last-child td { border-bottom: none; }
+    .records-table tr:hover td { background: rgba(10,77,140,0.02); }
+
+    .records-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(204,222,237,0.4);
+      gap: 8px;
+    }
+
+    .records-toolbar label { font-size: 0.8rem; color: var(--ink-soft); }
+    .records-toolbar input {
+      width: 220px;
+      padding: 7px 12px;
+      border: 1.5px solid #ccdeed;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .records-toolbar input:focus { border-color: #1877c9; }
+
+    .records-table-wrap {
+      padding: 0 0 4px;
+      overflow-x: auto;
+    }
+  </style>
 </head>
-<body class="admin-page">
+<body class="admin-page" style="display:flex;flex-direction:column;min-height:100vh;">
 <?php include __DIR__ . '/nav_admin.php'; ?>
-<main class="admin-main">
+<main class="admin-main" style="flex:1;">
   <span class="section-eyebrow">Administration</span>
   <h2 class="section-title">View Sit-In Records</h2>
+
   <div class="admin-card">
     <div class="admin-card-header">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 1 .5 4"/><polyline points="3 21 3 16 8 16"/></svg>
       Sit-In History
     </div>
-    <div class="admin-table-wrap">
-      <div class="admin-table-toolbar">
-        <div class="search-box-wrap"><label>Search:</label><input type="text" id="tableSearch" oninput="filterTable()" placeholder="Search records..."/></div>
-      </div>
-      <table class="admin-table-box" id="recordsTable">
-        <thead><tr><th>Sit ID</th><th>ID Number</th><th>Name</th><th>Purpose</th><th>Lab</th><th>Date In</th><th>Date Out</th><th>Status</th></tr></thead>
+
+    <div class="records-toolbar">
+      <label>Search:</label>
+      <input type="text" id="tableSearch" oninput="filterTable()" placeholder="Search by name, ID, lab..."/>
+    </div>
+
+    <div class="records-table-wrap">
+      <table class="records-table" id="recordsTable">
+        <thead>
+          <tr>
+            <th>Sit ID</th>
+            <th>ID Number</th>
+            <th>Name</th>
+            <th>Purpose</th>
+            <th>Lab</th>
+            <th>Date In</th>
+            <th>Date Out</th>
+            <th>Status</th>
+          </tr>
+        </thead>
         <tbody>
           <?php foreach ($records as $r): ?>
           <tr>
@@ -46,7 +121,7 @@ $nav_admin_active = 'records';
             <td><?= htmlspecialchars($r['purpose']) ?></td>
             <td><?= htmlspecialchars($r['lab_room']) ?></td>
             <td><?= htmlspecialchars($r['date_in']) ?></td>
-            <td><?= $r['date_out'] ? htmlspecialchars($r['date_out']) : '<span style="color:#aaa">—</span>' ?></td>
+            <td><?= $r['date_out'] ? htmlspecialchars($r['date_out']) : '<span style="color:#aaa;font-style:italic;">Still active</span>' ?></td>
             <td><span class="badge badge-<?= $r['status'] ?>"><?= ucfirst($r['status']) ?></span></td>
           </tr>
           <?php endforeach; ?>
@@ -62,7 +137,9 @@ $nav_admin_active = 'records';
 <script>
 function filterTable() {
   const q = document.getElementById('tableSearch').value.toLowerCase();
-  document.querySelectorAll('#recordsTable tbody tr').forEach(r => { r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+  document.querySelectorAll('#recordsTable tbody tr').forEach(r => {
+    r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
 }
 </script>
 </body>

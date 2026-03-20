@@ -38,8 +38,9 @@ body {
 }
 
 body.landing {
-  background: none;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 body.landing::before {
   content: '';
@@ -187,6 +188,7 @@ body.auth {
   align-items: center;
   max-width: 1100px;
   margin: 0 auto;
+  flex: 1;
 }
 .hero-eyebrow {
   font-size: 0.72rem;
