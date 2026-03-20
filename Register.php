@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $first_name       = trim($_POST['first_name']       ?? '');
     $middle_name      = trim($_POST['middle_name']      ?? '');
     $last_name        = trim($_POST['last_name']        ?? '');
-    $student_id       = trim($_POST['student_id']       ?? '');
+    // student_id is auto-generated
     $course           = trim($_POST['course']           ?? '');
     $level            = trim($_POST['level']            ?? '');
     $email            = strtolower(trim($_POST['email'] ?? ''));
@@ -30,11 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password         = $_POST['password']              ?? '';
     $confirm_password = $_POST['confirm_password']      ?? '';
 
-    $old = compact('first_name','middle_name','last_name','student_id','course','level','email','address');
+    $old = compact('first_name','middle_name','last_name','course','level','email','address');
 
     if ($first_name === '')       $errors['first_name']       = 'First name is required.';
     if ($last_name  === '')       $errors['last_name']        = 'Last name is required.';
-    if ($student_id === '')       $errors['student_id']       = 'Student ID is required.';
     if ($course     === '')       $errors['course']           = 'Please select your course.';
     if ($level      === '')       $errors['level']            = 'Please select your year level.';
     if ($email      === '')       $errors['email']            = 'UC Email address is required.';
@@ -42,8 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($password   === '')       $errors['password']         = 'Please create a password.';
     if ($confirm_password === '') $errors['confirm_password'] = 'Please confirm your password.';
 
-    if (!isset($errors['student_id']) && !preg_match('/^\d{4}-\d{5}$/', $student_id))
-        $errors['student_id'] = 'Use the format 2025-XXXXX (e.g. 2025-00001).';
     if (!isset($errors['course']) && !array_key_exists($course, $course_options))
         $errors['course'] = 'Please select a valid course.';
     if (!isset($errors['level']) && !in_array($level, $level_options, true))
@@ -60,11 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $db  = get_db();
         $chk = $db->prepare('SELECT student_id, email FROM students WHERE student_id = ? OR email = ? LIMIT 1');
-        $chk->execute([$student_id, $email]);
+        $chk->execute([$email]);
         $existing = $chk->fetch();
         if ($existing) {
-            if ($existing['student_id'] === $student_id) $errors['student_id'] = 'This Student ID is already registered.';
-            if ($existing['email']      === $email)      $errors['email']      = 'This email is already registered.';
+            $errors['email'] = 'This email is already registered.';
         }
     }
 
@@ -92,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>UC CCS &mdash; Register</title>
   <link rel="stylesheet" href="css/Style.css"/>
 </head>
-<body class="auth">
+<body class="auth" style="display:flex;flex-direction:column;min-height:100vh;">
 
 <?php include __DIR__ . '/nav_landing.php'; ?>
 
@@ -103,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </div>
 <?php endif; ?>
 
-  <div class="auth-wrap">
+  <div class="auth-wrap" style="flex:1;">
     <div class="auth-card">
       <div class="auth-left">
         <img src="images/uclogo-removebg-preview-removebg-preview.png" alt="University of Cebu" class="auth-uc-logo"/>
@@ -113,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if (!empty($errors)): ?>
           <div class="alert alert--error">
-            <span class="alert-icon">&
+            <span class="alert-icon">&#10005;</span>
             <span>Please fix the highlighted fields before continuing.</span>
           </div>
         <?php endif; ?>
@@ -145,14 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
           </div>
 
-          <div class="field<?= isset($errors['student_id']) ? ' field--error' : '' ?>">
-            <label for="student_id">Student ID</label>
-            <input type="text" id="student_id" name="student_id" placeholder="2025-XXXXX"
-              value="<?= htmlspecialchars($old['student_id'] ?? '') ?>"/>
-            <?php if (isset($errors['student_id'])): ?>
-              <span class="field-msg"><?= htmlspecialchars($errors['student_id']) ?></span>
-            <?php endif; ?>
-          </div>
+
 
           <div class="field-row">
             <div class="field<?= isset($errors['course']) ? ' field--error' : '' ?>">
@@ -208,8 +197,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <label for="password">Password</label>
               <div class="input-wrap">
                 <input type="password" id="password" name="password"
-                  placeholder="Min. 8 characters" autocomplete="new-password"/>
-                <button type="button" class="pw-toggle" onclick="togglePw('password',this)">&
+                  placeholder="Min. 8 characters" autocomplete="new-password"
+                  oninput="checkStrength(this.value)"/>
+                <button type="button" class="pw-toggle" onclick="togglePw('password',this)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
               </div>
               <?php if (isset($errors['password'])): ?>
                 <span class="field-msg"><?= htmlspecialchars($errors['password']) ?></span>
@@ -219,20 +211,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <label for="confirm_password">Confirm Password</label>
               <div class="input-wrap">
                 <input type="password" id="confirm_password" name="confirm_password"
-                  placeholder="Repeat password" autocomplete="new-password"/>
-                <button type="button" class="pw-toggle" onclick="togglePw('confirm_password',this)">&
+                  placeholder="Repeat password" autocomplete="new-password"
+                  oninput="checkMatch()"/>
+                <button type="button" class="pw-toggle" onclick="togglePw('confirm_password',this)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
               </div>
               <?php if (isset($errors['confirm_password'])): ?>
                 <span class="field-msg"><?= htmlspecialchars($errors['confirm_password']) ?></span>
               <?php endif; ?>
+              <span class="field-msg" id="match-msg" style="display:none;color:#e74c3c;">Passwords do not match.</span>
             </div>
           </div>
 
-          <div class="pw-strength-wrap" id="pw-strength-wrap" style="display:none">
-            <div class="pw-strength-bar">
-              <div class="pw-strength-fill" id="pw-strength-fill"></div>
+          <!-- Password strength meter -->
+          <div id="pw-strength-wrap" style="margin-top:-8px;margin-bottom:12px;display:none;">
+            <div style="display:flex;gap:4px;margin-bottom:4px;">
+              <div class="strength-bar" id="sb1"></div>
+              <div class="strength-bar" id="sb2"></div>
+              <div class="strength-bar" id="sb3"></div>
+              <div class="strength-bar" id="sb4"></div>
             </div>
-            <span class="pw-strength-label" id="pw-strength-label"></span>
+            <span id="strength-label" style="font-size:0.72rem;font-weight:600;"></span>
           </div>
 
           <button class="auth-btn" type="submit">Create Account</button>
@@ -256,42 +256,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php include __DIR__ . '/footer.php'; ?>
 
+<style>
+.strength-bar {
+  flex: 1;
+  height: 5px;
+  border-radius: 4px;
+  background: #e0e8f0;
+  transition: background 0.3s;
+}
+</style>
+
 <script>
 function togglePw(fieldId, btn) {
   const input = document.getElementById(fieldId);
-  if (input.type === 'password') { input.type = 'text';     btn.textContent = '\uD83D\uDE48'; }
-  else                           { input.type = 'password'; btn.textContent = '\uD83D\uDC41'; }
+  const isHidden = input.type === 'password';
+  input.type = isHidden ? 'text' : 'password';
+  btn.innerHTML = isHidden
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
 }
-const pwInput = document.getElementById('password');
-const wrap    = document.getElementById('pw-strength-wrap');
-const fill    = document.getElementById('pw-strength-fill');
-const lbl     = document.getElementById('pw-strength-label');
-pwInput.addEventListener('input', () => {
-  const v = pwInput.value;
-  if (!v) { wrap.style.display = 'none'; return; }
-  wrap.style.display = 'flex';
+
+function checkStrength(val) {
+  const wrap = document.getElementById('pw-strength-wrap');
+  const bars = [document.getElementById('sb1'), document.getElementById('sb2'), document.getElementById('sb3'), document.getElementById('sb4')];
+  const label = document.getElementById('strength-label');
+
+  if (!val) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+
   let score = 0;
-  if (v.length >= 8)           score++;
-  if (/[A-Z]/.test(v))         score++;
-  if (/[0-9]/.test(v))         score++;
-  if (/[^A-Za-z0-9]/.test(v))  score++;
-  const levels = [
-    { pct:'25%', color:'
-    { pct:'50%', color:'
-    { pct:'75%', color:'
-    { pct:'100%',color:'
+  if (val.length >= 8)          score++;
+  if (/[A-Z]/.test(val))        score++;
+  if (/[0-9]/.test(val))        score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+
+  const configs = [
+    { color: '#e74c3c', text: 'Weak',      textColor: '#e74c3c' },
+    { color: '#e8a020', text: 'Fair',      textColor: '#e8a020' },
+    { color: '#3498db', text: 'Good',      textColor: '#3498db' },
+    { color: '#27ae60', text: 'Strong',    textColor: '#27ae60' },
   ];
-  const l = levels[score - 1] || levels[0];
-  fill.style.width = l.pct; fill.style.background = l.color;
-  lbl.textContent = l.text; lbl.style.color = l.color;
-});
-const confirmInput = document.getElementById('confirm_password');
-confirmInput.addEventListener('input', () => {
-  if (!confirmInput.value) { confirmInput.style.borderColor = ''; return; }
-  confirmInput.style.borderColor = confirmInput.value === pwInput.value ? '
-});
-const toast = document.getElementById('toast');
-if (toast) setTimeout(() => toast.classList.add('toast--hide'), 4500);
+
+  bars.forEach((bar, i) => {
+    bar.style.background = i < score ? configs[score - 1].color : '#e0e8f0';
+  });
+
+  label.textContent  = configs[score - 1]?.text || '';
+  label.style.color  = configs[score - 1]?.textColor || '';
+  checkMatch();
+}
+
+function checkMatch() {
+  const pw  = document.getElementById('password').value;
+  const cpw = document.getElementById('confirm_password').value;
+  const msg = document.getElementById('match-msg');
+  const confirmField = document.getElementById('confirm_password');
+  if (!cpw) { msg.style.display = 'none'; confirmField.style.borderColor = ''; return; }
+  if (pw === cpw) {
+    msg.style.display = 'none';
+    confirmField.style.borderColor = '#27ae60';
+  } else {
+    msg.style.display = 'block';
+    confirmField.style.borderColor = '#e74c3c';
+  }
+}
 </script>
 </body>
 </html>

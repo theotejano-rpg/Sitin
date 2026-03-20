@@ -119,11 +119,11 @@ $role_selected = $old['role'] ?? 'student';
     }
   </style>
 </head>
-<body class="auth">
+<body class="auth" style="display:flex;flex-direction:column;min-height:100vh;">
 
 <?php include __DIR__ . '/nav_landing.php'; ?>
 
-  <div class="auth-wrap">
+  <div class="auth-wrap" style="flex:1;">
     <div class="auth-card">
       <div class="auth-left">
         <img src="images/uclogo-removebg-preview-removebg-preview.png" alt="University of Cebu" class="auth-uc-logo"/>
@@ -181,7 +181,7 @@ $role_selected = $old['role'] ?? 'student';
             <?php endif; ?>
           </div>
 
-          <div class="auth-forgot"><a href="#">Forgot password?</a></div>
+          <div class="auth-forgot"><a href="ForgotPassword.php">Forgot password?</a></div>
           <button class="auth-btn" type="submit">Sign In</button>
         </form>
 
