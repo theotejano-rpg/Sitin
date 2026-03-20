@@ -135,7 +135,7 @@ $nav_admin_active = 'sitin';
       <div class="admin-table-toolbar">
         <div class="search-box-wrap"><label>Search:</label><input type="text" id="tableSearch" oninput="filterTable()" placeholder="Search..."/></div>
       </div>
-      <table class="admin-table" id="sitinTable">
+      <table class="admin-table-box" id="sitinTable">
         <thead><tr><th>Sit ID</th><th>ID Number</th><th>Name</th><th>Purpose</th><th>Sit Lab</th><th>Session</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
           <?php foreach ($current_sitins as $log): ?>

@@ -29,6 +29,12 @@ body {
   font-family: 'DM Sans', sans-serif;
   background: #c8e8f8;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-footer {
+  margin-top: auto;
 }
 
 body.landing {

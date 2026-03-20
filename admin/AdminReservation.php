@@ -35,7 +35,7 @@ $nav_admin_active = 'reservation';
       <div class="admin-table-toolbar">
         <div class="search-box-wrap"><label>Search:</label><input type="text" id="tableSearch" oninput="filterTable()" placeholder="Search..."/></div>
       </div>
-      <table class="admin-table" id="resTable">
+      <table class="admin-table-box" id="resTable">
         <thead><tr><th>ID</th><th>Student ID</th><th>Name</th><th>Lab</th><th>Purpose</th><th>Date In</th><th>Date Out</th><th>Status</th></tr></thead>
         <tbody>
           <?php foreach ($reservations as $r): ?>

@@ -35,7 +35,7 @@ $nav_admin_active = 'records';
       <div class="admin-table-toolbar">
         <div class="search-box-wrap"><label>Search:</label><input type="text" id="tableSearch" oninput="filterTable()" placeholder="Search records..."/></div>
       </div>
-      <table class="admin-table" id="recordsTable">
+      <table class="admin-table-box" id="recordsTable">
         <thead><tr><th>Sit ID</th><th>ID Number</th><th>Name</th><th>Purpose</th><th>Lab</th><th>Date In</th><th>Date Out</th><th>Status</th></tr></thead>
         <tbody>
           <?php foreach ($records as $r): ?>

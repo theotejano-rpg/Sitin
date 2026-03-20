@@ -38,53 +38,106 @@ $nav_admin_active = 'students';
   <title>UC CCS &mdash; Students</title>
   <link rel="stylesheet" href="../css/Style.css"/>
   <link rel="stylesheet" href="../css/Admin.css"/>
+  <style>
+    body.admin-page a { text-decoration: none !important; }
+
+    .student-list-header {
+      display: grid;
+      grid-template-columns: 1.2fr 2fr 1fr 1fr 1.2fr 1.2fr;
+      padding: 8px 18px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--ink-soft);
+      gap: 12px;
+    }
+
+    .student-card {
+      display: grid;
+      grid-template-columns: 1.2fr 2fr 1fr 1fr 1.2fr 1.2fr;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.88);
+      border: 1px solid rgba(204,222,237,0.7);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 8px rgba(10,77,140,0.06);
+      font-size: 0.85rem;
+      color: var(--ink);
+      transition: box-shadow 0.18s, transform 0.18s;
+    }
+
+    .student-card:hover {
+      box-shadow: 0 6px 20px rgba(10,77,140,0.12);
+      transform: translateY(-1px);
+    }
+
+    .student-card-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .student-list-wrap {
+      padding: 16px 20px;
+    }
+  </style>
 </head>
 <body class="admin-page">
 <?php include __DIR__ . '/nav_admin.php'; ?>
 <main class="admin-main">
   <span class="section-eyebrow">Administration</span>
   <h2 class="section-title">Students Information</h2>
+
   <div class="admin-card">
     <div class="admin-card-header">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
       Student List
     </div>
-    <div class="admin-table-wrap">
+
+    <div class="student-list-wrap">
       <?php if ($success): ?>
-        <div class="admin-alert success">&#10003; <?= htmlspecialchars($success) ?></div>
+        <div class="admin-alert success" style="margin-bottom:14px;">&#10003; <?= htmlspecialchars($success) ?></div>
       <?php endif; ?>
-      <div class="admin-table-toolbar">
+
+      <div class="admin-table-toolbar" style="margin-bottom:16px;">
         <div class="admin-table-toolbar-left">
           <a href="AdminStudents.php?reset_all=1" onclick="return confirm('Reset ALL student sessions to 30?')" class="admin-btn gold">&#8635; Reset All Sessions</a>
         </div>
         <div class="search-box-wrap">
           <label>Search:</label>
-          <input type="text" id="tableSearch" oninput="filterTable()" placeholder="Name, ID, course..."/>
+          <input type="text" id="tableSearch" oninput="filterCards()" placeholder="Name, ID, course..."/>
         </div>
       </div>
-      <table class="admin-table" id="studentsTable">
-        <thead>
-          <tr><th>ID Number</th><th>Name</th><th>Year Level</th><th>Course</th><th>Remaining Sessions</th><th>Actions</th></tr>
-        </thead>
-        <tbody>
-          <?php foreach ($students as $s): ?>
-          <tr>
-            <td><?= htmlspecialchars($s['student_id']) ?></td>
-            <td><?= htmlspecialchars($s['first_name'].' '.($s['middle_name']?$s['middle_name'].' ':'').$s['last_name']) ?></td>
-            <td><?= htmlspecialchars($s['level']) ?></td>
-            <td><?= htmlspecialchars($s['course_code']) ?></td>
-            <td><?= $s['sessions'] - $s['used'] ?></td>
-            <td style="display:flex;gap:6px;">
-              <button class="admin-btn blue sm" onclick='openEdit(<?= htmlspecialchars(json_encode($s)) ?>)'>Edit</button>
-              <a href="AdminStudents.php?delete=<?= $s['id'] ?>" onclick="return confirm('Delete this student?')" class="admin-btn red sm">Delete</a>
-            </td>
-          </tr>
-          <?php endforeach; ?>
-          <?php if (empty($students)): ?>
-            <tr><td colspan="6" class="empty-state">No students registered yet.</td></tr>
-          <?php endif; ?>
-        </tbody>
-      </table>
+
+      <div class="student-list-header">
+        <span>ID Number</span>
+        <span>Name</span>
+        <span>Year Level</span>
+        <span>Course</span>
+        <span>Remaining Sessions</span>
+        <span>Actions</span>
+      </div>
+
+      <div id="studentCards">
+        <?php if (empty($students)): ?>
+          <div class="empty-state">No students registered yet.</div>
+        <?php endif; ?>
+        <?php foreach ($students as $s): ?>
+        <div class="student-card">
+          <span><?= htmlspecialchars($s['student_id']) ?></span>
+          <span><?= htmlspecialchars($s['first_name'].' '.($s['middle_name']?$s['middle_name'].' ':'').$s['last_name']) ?></span>
+          <span><?= htmlspecialchars($s['level']) ?></span>
+          <span><?= htmlspecialchars($s['course_code']) ?></span>
+          <span><?= $s['sessions'] - $s['used'] ?></span>
+          <div class="student-card-actions">
+            <button class="admin-btn blue sm" onclick='openEdit(<?= htmlspecialchars(json_encode($s)) ?>)'>Edit</button>
+            <a href="AdminStudents.php?delete=<?= $s['id'] ?>" onclick="return confirm('Delete this student?')" class="admin-btn red sm">Delete</a>
+          </div>
+        </div>
+        <?php endforeach; ?>
+      </div>
     </div>
   </div>
 </main>
@@ -140,10 +193,10 @@ function openEdit(s) {
   document.getElementById('edit_sessions').value = s.sessions;
   document.getElementById('editModal').classList.add('open');
 }
-function filterTable() {
+function filterCards() {
   const q = document.getElementById('tableSearch').value.toLowerCase();
-  document.querySelectorAll('#studentsTable tbody tr').forEach(r => {
-    r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+  document.querySelectorAll('#studentCards .student-card').forEach(c => {
+    c.style.display = c.textContent.toLowerCase().includes(q) ? '' : 'none';
   });
 }
 </script>

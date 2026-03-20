@@ -1,5 +1,6 @@
 body.student-page {
-  display: block;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   background:
     radial-gradient(ellipse 70% 50% at 10% 10%, #a2d8f4 0%, transparent 55%),
@@ -466,4 +467,8 @@ body.student-page {
   .section-title { font-size: 1.2rem; }
   .rules-grid { grid-template-columns: 1fr; }
   .sn-divider { display: none; }
+}
+
+.student-main {
+  flex: 1;
 }
