@@ -5,7 +5,7 @@ require_once 'db.php';
 $nav_active = 'login';
 
 if (!empty($_SESSION['student'])) { header('Location: Students.php'); exit; }
-if (!empty($_SESSION['admin']))   { header('Location: admin.php');    exit; }
+if (!empty($_SESSION['admin']))   { header('Location: admin/admin.php');    exit; }
 
 $errors = [];
 $old    = [];
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'last_name'  => $admin['last_name'],
                     'email'      => $admin['email'],
                 ];
-                header('Location: admin.php');
+                header('Location: admin/admin.php');
                 exit;
             } else {
                 $errors['auth'] = 'Incorrect email or password.';
